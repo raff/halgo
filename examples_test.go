@@ -1,10 +1,11 @@
 package halgo_test
 
 import (
-	"."
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/raff/halgo"
 )
 
 func ExampleLinks() {
