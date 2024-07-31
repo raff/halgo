@@ -10,15 +10,15 @@ import (
 // Links represents a collection of HAL links. You can embed this struct
 // in your own structs for sweet, sweet HAL serialisation goodness.
 //
-//     type MyStruct struct {
-//       halgo.Links
-//     }
+//	type MyStruct struct {
+//	  halgo.Links
+//	}
 //
-//     my := MyStruct{
-//       Links: halgo.Links{}.
-//         Self("http://example.com/").
-//         Next("http://example.com/1"),
-//     }
+//	my := MyStruct{
+//	  Links: halgo.Links{}.
+//	    Self("http://example.com/").
+//	    Next("http://example.com/1"),
+//	}
 type Links struct {
 	Items map[string]linkSet `json:"_links,omitempty"`
 	// Curies CurieSet
@@ -27,8 +27,8 @@ type Links struct {
 // Self creates a link with the rel as "self". Optionally can act as a
 // format string with parameters.
 //
-//     Self("http://example.com/a/1")
-//     Self("http://example.com/a/%d", id)
+//	Self("http://example.com/a/1")
+//	Self("http://example.com/a/%d", id)
 func (l Links) Self(href string, args ...interface{}) Links {
 	return l.Link("self", href, args...)
 }
@@ -36,8 +36,8 @@ func (l Links) Self(href string, args ...interface{}) Links {
 // Next creates a link with the rel as "next". Optionally can act as a
 // format string with parameters.
 //
-//     Next("http://example.com/a/1")
-//     Next("http://example.com/a/%d", id)
+//	Next("http://example.com/a/1")
+//	Next("http://example.com/a/%d", id)
 func (l Links) Next(href string, args ...interface{}) Links {
 	return l.Link("next", href, args...)
 }
@@ -45,8 +45,8 @@ func (l Links) Next(href string, args ...interface{}) Links {
 // Prev creates a link with the rel as "prev". Optionally can act as a
 // format string with parameters.
 //
-//     Prev("http://example.com/a/1")
-//     Prev("http://example.com/a/%d", id)
+//	Prev("http://example.com/a/1")
+//	Prev("http://example.com/a/%d", id)
 func (l Links) Prev(href string, args ...interface{}) Links {
 	return l.Link("prev", href, args...)
 }
@@ -54,8 +54,8 @@ func (l Links) Prev(href string, args ...interface{}) Links {
 // Link creates a link with a named rel. Optionally can act as a format
 // string with parameters.
 //
-//     Link("abc", "http://example.com/a/1")
-//     Link("abc", "http://example.com/a/%d", id)
+//	Link("abc", "http://example.com/a/1")
+//	Link("abc", "http://example.com/a/%d", id)
 func (l Links) Link(rel, href string, args ...interface{}) Links {
 	if len(args) != 0 {
 		href = fmt.Sprintf(href, args...)
@@ -68,7 +68,7 @@ func (l Links) Link(rel, href string, args ...interface{}) Links {
 
 // Add creates multiple links with the same relation.
 //
-//     Add("abc", halgo.Link{Href: "/a/1"}, halgo.Link{Href: "/a/2"})
+//	Add("abc", halgo.Link{Href: "/a/1"}, halgo.Link{Href: "/a/2"})
 func (l Links) Add(rel string, links ...Link) Links {
 	if l.Items == nil {
 		l.Items = make(map[string]linkSet)
@@ -90,13 +90,26 @@ func (l Links) Add(rel string, links ...Link) Links {
 
 // P is a parameters map for expanding URL templates.
 //
-//     halgo.P{"id": 1}
+//	halgo.P{"id": 1}
 type P map[string]interface{}
 
 // Href tries to find the href of a link with the supplied relation.
 // Returns LinkNotFoundError if a link doesn't exist.
 func (l Links) Href(rel string) (string, error) {
 	return l.HrefParams(rel, nil)
+}
+
+func (l Links) LinkItems(rel string) ([]Link, error) {
+	if rel == "" {
+		return nil, errors.New("Empty string not valid relation")
+	}
+
+	links := l.Items[rel]
+	if len(links) > 0 {
+		return links, nil
+	}
+
+	return nil, LinkNotFoundError{rel, l.Items}
 }
 
 // HrefParams tries to find the href of a link with the supplied relation,
